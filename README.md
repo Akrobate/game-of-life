@@ -2,6 +2,9 @@
 
 A minimal and interactive implementation of John Conway's famous cellular automaton, built with vanilla JavaScript.
 
+Demo: [https://akrobate.github.io/game-of-life/](https://akrobate.github.io/game-of-life/)
+
+
 ## 🚀 Features
 
 - Randomized Initialization: The grid automatically populates with a random distribution of alive and dead cells when loaded.
