@@ -1,177 +1,178 @@
+var cellw = 20;
+var cellh = 20;
+var bordercolor="#ececec";
+var nb_x = 64;
+var nb_y = 32;
 
-		$(document).ready(function() {
-			
-			var cellw = 20;
-			var cellh = 20;
-			var bordercolor="#ececec";
-			var nb_x = 64;
-			var nb_y = 32;
+play = false;
+timelaps = 125;
 
-			// Globals
-			play = false;
-			timelaps = 125;
-			
-			data = new Array(nb_x);
-			for (var i = 0; i < nb_x; i++) {
-				data[i] = new Array(nb_y);
-			}
-			
-			console.log(data);
-			
-			// generating all data
-			for(var i=0; i < nb_y; i++){
-				for(var j=0; j < nb_x; j++){
-					data[j][i] = (!(Math.random()+.7|0));
-				}
-			}
 
-			console.log(data);
+$(document).ready(function() {
 	
-			grd = $("#mainGrid");
-			grd.width(cellw * nb_x);
-			grd.height(cellh * nb_y);
-			
-			var alive = false;
-			
-			for(var i=0; i < nb_y; i++){
-				for(var j=0; j < nb_x; j++){
-				
-					if (data[j][i]) {
-						alive = "alive";
-					} else {
-						alive = "";
-					}
+	data = new Array(nb_x);
+	for (let i = 0; i < nb_x; i++) {
+		data[i] = new Array(nb_y);
+	}
+	
+	console.log(data);
 
-					grd.append("<div class='cell "+alive+"' id='x"+j+"y"+i+"' data-x='"+j+"' data-y='"+i+"' style='border:1px solid  "+ bordercolor +";width:" + (cellw -2) +  "px;height:" + (cellh -2) + "px;float:left'></div> ");
-				
-				}
+	for(let i=0; i < nb_y; i++){
+		for(let j=0; j < nb_x; j++){
+			data[j][i] = (!(Math.random()+.7|0));
+		}
+	}
+
+	console.log(data);
+
+	grd = $("#mainGrid");
+	grd.width(cellw * nb_x);
+	grd.height(cellh * nb_y);
+	
+	var alive = false;
+	
+	for(let i=0; i < nb_y; i++){
+		for(let j=0; j < nb_x; j++){
+		
+			if (data[j][i]) {
+				alive = "alive";
+			} else {
+				alive = "";
 			}
+			grd.append("<div class='cell "+alive+"' id='x"+j+"y"+i+"' data-x='"+j+"' data-y='"+i+"' style='border:1px solid  "+ bordercolor +";width:" + (cellw -2) +  "px;height:" + (cellh -2) + "px;float:left'></div> ");
+		}
+	}
+	
+	grd.append("<div style='clear:both'></div> ");
+	
+	drawNew(); 
+		
+	$(".cell").click(function() {
+		var x = $(this).data("x");
+		var y = $(this).data("y");				
+		if ($(this).hasClass('alive')) {
+			$(this).removeClass('alive');
+			data[x][y] = false;
+		} else {
+			$(this).addClass('alive');
+			data[x][y] = true;
+		}
+	});		
+	
+	
+	$(".act_pause").click(() => {
+		play = false;
+	});			
+	
+	
+	$(".act_play").click(() => {
+		play = true;
+	});
+	
+	$(".act_init_random").click(() => {
+		play = false;
+	});			
+	
+	$(".act_init_empty").click(() => {
+		play = true;
+	});			
+		
+		
+});
+
+
+function drawNew() {
+	if (play) {
+		clearGrid();
+		data = nextGeneration(data);
+		fillGridWithData(data);
+	}
+	setTimeout(() => drawNew(), timelaps);
+}
+
+
+function fillGridWithData(data) {
+
+	let nb_x = data.length;
+	let nb_y = data[0].length;
+	
+	$(".cell").removeClass("alive");
+	
+	for(let i=0; i < nb_y; i++){
+		for(let j=0; j < nb_x; j++) {
+			let selector = "#x" + j + "y" + i;
+			if (data[j][i]) {
+				$(selector).addClass("alive");
+			} 
+		}
+	}
+}
+
+
+function clearGrid() {
+	$(".cell").removeClass("alive");
+}
+
+
+function nextGeneration(data) {
+
+	var nb_x = data.length;
+	var nb_y = data[0].length;
+
+	var datarez = new Array(nb_x);
+	for (let i = 0; i < nb_x; i++) {
+		datarez[i] = new Array(nb_y);
+	}
+
+	for(let i = 0; i < nb_x; i++) {
+		for(let j = 0; j < nb_y; j++) {
 			
-			grd.append("<div style='clear:both'></div> ");
-			
-			drawNew(); 
-				
-			$(".cell").click(function(){
-				var x = $(this).data("x");
-				var y = $(this).data("y");				
-				if ($(this).hasClass('alive')) {
-					$(this).removeClass('alive');
-					data[x][y] = false;
+			var counton = countArround(data, i, j);
+			if (checkMySelf(data, i, j)) {
+					
+				if ((counton != 2) && (counton != 3)) {
+					datarez[i][j] = false;
 				} else {
-					$(this).addClass('alive');
-					data[x][y] = true;
+					datarez[i][j] = true;
 				}
+			} else {
+				if (counton == 3) {
+					datarez[i][j] = true;
+				} else {
+					datarez[i][j] = false;
+				}		
+			}
+		}
+	}
+	return datarez;
 
-			});		
-			
-			
-			$(".act_pause").click(function(){
-				play = false;
-			});			
-			
-			
-			$(".act_play").click(function(){
-				play = true;
-			});			
-				
-		});
-		
-		function drawNew() {
-			
-			if (play) {
-				clearGrid();
-				data = nextGeneration(data);
-				fillGridWithData(data);
-			}
-			setTimeout("drawNew()", timelaps);
-		}
-		
-		
-		function fillGridWithData(data) {
+}
 
-			var nb_x = data.length;
-			var nb_y = data[0].length;
-			
-			$(".cell").removeClass("alive");
-			
-			for(var i=0; i < nb_y; i++){
-				for(var j=0; j < nb_x; j++){
-					var selector = "#x" + j + "y" + i;
-					if (data[j][i]) {
-						$(selector).addClass("alive");
-					} 
-				}
-			}
-		}
-		
-		function clearGrid() {
-			$(".cell").removeClass("alive");
-		}
-		
-		/**
-		 *	Rules
-		 */
-		function nextGeneration(data) {
-		
-			var nb_x = data.length;
-			var nb_y = data[0].length;
-		
-			var datarez = new Array(nb_x);
-			for (i = 0; i < nb_x; i++) {
-				datarez[i] = new Array(nb_y);
-			}
-		
-			for(var i = 0; i < nb_x; i++) {
-				for(var j = 0; j < nb_y; j++) {
-					
-					var counton = countArround(data, i, j);
-					if (checkMySelf(data, i, j)) { // cellule activée
-							
-						if ((counton != 2) && (counton != 3)) {
-							datarez[i][j] = false;
-						} else {
-							datarez[i][j] = true;
-						}
-					
-					} else { // celulle éteinte
-						if (counton == 3) {
-							datarez[i][j] = true;
-						} else {
-							datarez[i][j] = false;
-						}		
-					}
-				}
-			}
-			return datarez;
-		
-		}
-		
-		function countArround(data, x, y) {
-		
-			var nb_x = data.length;
-			var nb_y = data[0].length;				
-			var count = 0;
-			
-			if ((x >= 0) && (y >= 0) && (x <= nb_x) && (y <= nb_y)) {				
-				for (var i = -1; i < 2; i++) {
-					for (var j = -1; j < 2; j++) {
-						if (data[x+i] !== undefined) {
-							if (data[x+i][y+j] !== undefined) {
-								if (! ((i == 0) && (j == 0))) {
-								
-									if (data[x+i][y+j])	{
-										count++;
-									}
-								
-								}
+function countArround(data, x, y) {
+
+	var nb_x = data.length;
+	var nb_y = data[0].length;				
+	var count = 0;
+	
+	if ((x >= 0) && (y >= 0) && (x <= nb_x) && (y <= nb_y)) {				
+		for (let i = -1; i < 2; i++) {
+			for (let j = -1; j < 2; j++) {
+				if (data[x+i] !== undefined) {
+					if (data[x+i][y+j] !== undefined) {
+						if (! ((i == 0) && (j == 0))) {
+							if (data[x+i][y+j])	{
+								count++;
 							}
 						}
 					}
 				}
 			}
-			return count;
 		}
-		
-		function checkMySelf(data, x, y) {
-			return data[x][y];
-		}
+	}
+	return count;
+}
+
+
+function checkMySelf(data, x, y) {
+	return data[x][y];
+}

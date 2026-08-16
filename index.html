@@ -4,12 +4,16 @@
 		<script src="js/game-of-life.js"></script>
 		<style>
 			.alive { background: black; }
+			.act { cursor: pointer; }
 		</style>
 	</head>
 
 	<body style="text-align:center">
 		<p>
-			<span class="act_pause">Pause</span> | <span class="act_play">Play</span>
+			<span class="act act_play">Play</span>
+			| <span class="act act_pause">Pause</span>
+			| <span class="act act_init_random">Init random</span>
+			| <span class="act act_init_empty">Init empty</span>
 		</p>
 		<div id="mainGrid" style="margin-left:auto;margin-right:auto;" ></div>
 	</body>
